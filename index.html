@@ -376,35 +376,56 @@
       try {
         console.log("Envoi du score:", { pseudo, score });
 
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ pseudo, score })
-        });
+        // MÉTHODE SANS CORS - Formulaire GET dans iframe caché
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.name = 'submitFrame';
+        document.body.appendChild(iframe);
 
-        console.log("Réponse reçue:", response);
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = GOOGLE_SCRIPT_URL;
+        form.target = 'submitFrame';
+        form.style.display = 'none';
 
-        const result = await response.json();
-        console.log("Contenu de la réponse:", result);
+        const pseudoInput = document.createElement('input');
+        pseudoInput.type = 'hidden';
+        pseudoInput.name = 'pseudo';
+        pseudoInput.value = pseudo;
 
-        if (result.result === "success") {
+        const scoreInput = document.createElement('input');
+        scoreInput.type = 'hidden';
+        scoreInput.name = 'score';
+        scoreInput.value = score;
+
+        form.appendChild(pseudoInput);
+        form.appendChild(scoreInput);
+        document.body.appendChild(form);
+
+        // Soumission du formulaire
+        form.submit();
+
+        // Succès après 2 secondes
+        setTimeout(() => {
           showMessage("✅ Score successfully submitted!");
           document.getElementById("scoreForm").reset();
-          updateScore(); // Remet à zéro l'affichage
-          loadRanking(); // Recharge le classement
-        } else {
-          showMessage("❌ Error: " + (result.message || "Unknown error"), true);
-        }
+          updateScore();
+          loadRanking();
+          
+          // Nettoyage
+          document.body.removeChild(form);
+          document.body.removeChild(iframe);
+        }, 2000);
 
       } catch (err) {
         console.error("Erreur complète:", err);
         showMessage("❌ Connection error. Please check your internet connection.", true);
       } finally {
         // Réactive le bouton
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }, 2000);
       }
     }
 
