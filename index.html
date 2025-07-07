@@ -409,45 +409,6 @@ async function submitScore(e) {
  }
 }
 
-    // Initialisation
-    updateScore();
-    loadRanking();
-    
-    // Recharge le classement toutes les 30 secondes
-    setInterval(loadRanking, 30000);
-
-    // Sauvegarde automatique des valeurs dans le navigateur
-    function saveToLocalStorage() {
-      const data = {
-        skill: document.getElementById("skill").value,
-        pet: document.getElementById("pet").value,
-        unco: document.getElementById("unco").value,
-        rare: document.getElementById("rare").value,
-        pseudo: document.getElementById("pseudo").value
-      };
-      localStorage.setItem('heroesRushData', JSON.stringify(data));
-    }
-
-    function loadFromLocalStorage() {
-      const data = localStorage.getItem('heroesRushData');
-      if (data) {
-        const parsed = JSON.parse(data);
-        document.getElementById("skill").value = parsed.skill || 0;
-        document.getElementById("pet").value = parsed.pet || 0;
-        document.getElementById("unco").value = parsed.unco || 0;
-        document.getElementById("rare").value = parsed.rare || 0;
-        document.getElementById("pseudo").value = parsed.pseudo || '';
-        updateScore();
-      }
-    }
-
-    // Charge les données sauvegardées au démarrage
-    loadFromLocalStorage();
-
-    // Sauvegarde à chaque modification
-    document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('input', saveToLocalStorage);
-    });
   </script>
 </body>
 </html>
