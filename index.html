@@ -358,8 +358,7 @@ async function submitScore(e) {
 }
 
       const pseudo = document.getElementById("pseudo").value.trim();
-      const score = parseInt(document.getElementById("total").textContent.replace(/,/g, ''));
-
+     
       // Validation
       if (!pseudo) {
         showMessage("Please enter a username!", true);
