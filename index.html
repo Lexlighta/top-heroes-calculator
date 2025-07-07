@@ -238,8 +238,8 @@
   </table>
 
   <script>
-    // URLs configurées
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwykhiTGalmfuD4J2_YRPlVEvwUUWK-iFCU-0eCkqHz8iByuml9XkpVxK97UOBxEUqHEQ/exec";
+    // URLs configurées - UTILISEZ L'ANCIENNE URL QUI MARCHAIT
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpktaOb6i2WKTRqVE9oxWo_hBEJ7DszYusi_yYqtbVXggjL7tDakjzlCVQfAjVAD7vBw/exec";
     const GOOGLE_SHEET_ID = "1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ";
 
     function updateScore() {
@@ -310,8 +310,8 @@
         }
 
         // Filtre les lignes vides et trie par score
-        const validData = data.filter(row => row.Pseudo && row.Score && !isNaN(parseInt(row.Score)));
-        validData.sort((a, b) => parseInt(b.Score) - parseInt(a.Score));
+        const validData = data.filter(row => row.Pseudo && row.Score && !isNaN(parseFloat(row.Score)));
+        validData.sort((a, b) => parseFloat(b.Score) - parseFloat(a.Score));
 
         const table = document.getElementById("ranking");
         table.innerHTML = "";
@@ -332,7 +332,7 @@
           else if (rank === 3) rankEmoji = "🥉 ";
           
           // Affichage correct du score avec virgules
-          const displayScore = parseInt(row.Score).toLocaleString();
+          const displayScore = parseFloat(row.Score).toLocaleString();
           tr.innerHTML = `<td>${rankEmoji}${row.Pseudo}</td><td>${displayScore}</td>`;
           table.appendChild(tr);
         });
