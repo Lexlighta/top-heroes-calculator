@@ -345,16 +345,72 @@
     }
 
 async function submitScore(e) {
-  e.preventDefault(); // ← DOIT ÊTRE EN PREMIER
+ e.preventDefault();
+ 
+ const scoreText = document.getElementById("total").textContent;
+ console.log("Raw score text:", scoreText);
+ const scoreNoComma = scoreText.replace(/,/g, '');
+ console.log("Score without comma:", scoreNoComma);
+ const score = parseInt(scoreNoComma);
+ console.log("Final score:", score);
 
-  const scoreText = document.getElementById("total").textContent;
-  console.log("Score text brut:", scoreText);
-  const scoreNoComma = scoreText.replace(/,/g, '');
-  console.log("Score sans virgule:", scoreNoComma);
-  const score = parseInt(scoreNoComma);
-  console.log("Score final:", score);
+ const pseudo = document.getElementById("pseudo").value.trim();
 
-  // ... reste du code
+ // Validation
+ if (!pseudo) {
+   showMessage("Please enter a username!", true);
+   return;
+ }
+
+ if (pseudo.length < 2) {
+   showMessage("Username must be at least 2 characters!", true);
+   return;
+ }
+
+ if (score === 0) {
+   if (!confirm("Your score is 0, are you sure you want to submit?")) {
+     return;
+   }
+ }
+
+ // Disable button during submission
+ const submitBtn = document.getElementById("submitBtn");
+ const originalText = submitBtn.textContent;
+ submitBtn.disabled = true;
+ submitBtn.textContent = "Submitting...";
+
+ try {
+   console.log("Sending score:", { pseudo, score });
+
+   const response = await fetch(GOOGLE_SCRIPT_URL, {
+     method: "POST",
+     headers: { 
+       "Content-Type": "text/plain;charset=utf-8"
+     },
+     body: JSON.stringify({ pseudo, score })
+   });
+
+   console.log("Response received:", response);
+
+   const result = await response.json();
+   console.log("Response content:", result);
+
+   if (result.result === "success") {
+     showMessage("✅ Score successfully submitted!");
+     document.getElementById("scoreForm").reset();
+     updateScore();
+     loadRanking();
+   } else {
+     showMessage("❌ Error: " + (result.message || "Unknown error"), true);
+   }
+
+ } catch (err) {
+   console.error("Complete error:", err);
+   showMessage("❌ Connection error. Please check your internet connection.", true);
+ } finally {
+   submitBtn.disabled = false;
+   submitBtn.textContent = originalText;
+ }
 }
 
       const pseudo = document.getElementById("pseudo").value.trim();
