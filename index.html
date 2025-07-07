@@ -348,7 +348,7 @@
       e.preventDefault();
 
       const pseudo = document.getElementById("pseudo").value.trim();
-      const score = parseFloat(document.getElementById("total").textContent.replace(/,/g, ''));
+      const score = parseInt(document.getElementById("total").textContent.replace(/,/g, ''));
 
       // Validation
       if (!pseudo) {
