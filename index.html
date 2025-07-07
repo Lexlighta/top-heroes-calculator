@@ -332,7 +332,7 @@
           else if (rank === 3) rankEmoji = "🥉 ";
           
           // Affichage correct du score avec virgules
-          const displayScore = parseInt(row.Score).toLocaleString();
+          const displayScore = Number(row.Score).toLocaleString();
           tr.innerHTML = `<td>${rankEmoji}${row.Pseudo}</td><td>${displayScore}</td>`;
           table.appendChild(tr);
         });
@@ -390,7 +390,7 @@
         console.log("Contenu de la réponse:", result);
 
         if (result.result === "success") {
-          showMessage("✅ Score envoyé avec succès !");
+          showMessage("✅ Score succesfully submitted !");
           document.getElementById("scoreForm").reset();
           updateScore(); // Remet à zéro l'affichage
           loadRanking(); // Recharge le classement
