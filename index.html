@@ -239,7 +239,7 @@
 
   <script>
     // URLs configurées
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdIjWgNO299ASQ9aV4e8ShaUT4AWGWfzqd15c7S2uVRokictdoQqgDKUFpNNHDH_bPMA/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLqESs6KJnE9bQn_7FnfM3opsNXAJI77WlP5Fmqaug0RDfq2u7cHxWGQMMwKrSaXOsbw/exec";
     const GOOGLE_SHEET_ID = "1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ";
 
     function updateScore() {
@@ -332,7 +332,7 @@
           else if (rank === 3) rankEmoji = "🥉 ";
           
           // Affichage correct du score avec virgules
-          const displayScore = Number(row.Score).toLocaleString();
+          const displayScore = parseInt(row.Score).toLocaleString();
           tr.innerHTML = `<td>${rankEmoji}${row.Pseudo}</td><td>${displayScore}</td>`;
           table.appendChild(tr);
         });
@@ -390,7 +390,7 @@
         console.log("Contenu de la réponse:", result);
 
         if (result.result === "success") {
-          showMessage("✅ Score succesfully submitted !");
+          showMessage("✅ Score envoyé avec succès !");
           document.getElementById("scoreForm").reset();
           updateScore(); // Remet à zéro l'affichage
           loadRanking(); // Recharge le classement
