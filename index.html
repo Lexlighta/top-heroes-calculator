@@ -345,6 +345,12 @@
     }
 
     async function submitScore(e) {
+    const scoreText = document.getElementById("total").textContent;
+console.log("Score text brut:", scoreText);
+const scoreNoComma = scoreText.replace(/,/g, '');
+console.log("Score sans virgule:", scoreNoComma);
+const score = parseInt(scoreNoComma);
+console.log("Score final:", score);
       e.preventDefault();
 
       const pseudo = document.getElementById("pseudo").value.trim();
