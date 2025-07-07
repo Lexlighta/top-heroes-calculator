@@ -133,7 +133,7 @@
       const qty3 = parseInt(document.getElementById("qty-3").value) || 0;
 
       const pts0 = Math.floor(qty0 / 10);
-      const pts1 = qty1 * 15;
+      const pts1 = Math.floor(qty1 / 100) * 15;
       const pts2 = qty2 * 150;
       const pts3 = qty3 * 900;
 
