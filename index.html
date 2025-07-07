@@ -249,6 +249,20 @@
   const rare = parseInt(document.getElementById("rare").value || 0) * 900;
   const total = skill + pet + unco + rare;
 
+  // Barre de progression qui peut aller au-delà de 100%
+      const percentage = (total / 40000 * 100);
+      const maxWidth = Math.min(percentage, 200); // Maximum 200% pour l'affichage visuel
+      document.getElementById("progressBar").style.width = maxWidth + "%";
+      document.getElementById("progressText").textContent = Math.round(percentage) + "%";
+      
+      // Change la couleur si on dépasse 100%
+      const progressBar = document.getElementById("progressBar");
+      if (percentage > 100) {
+        progressBar.style.background = "linear-gradient(90deg, #ffd700, #ffaa00)"; // Doré
+      } else {
+        progressBar.style.background = "linear-gradient(90deg, #64ff64, #32dd32)"; // Vert
+      }
+
   document.getElementById("score_skill").textContent = skill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   document.getElementById("score_pet").textContent = pet.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   document.getElementById("score_unco").textContent = unco.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -263,21 +277,6 @@
       document.getElementById("score_unco").textContent = unco.toLocaleString('en-US');
       document.getElementById("score_rare").textContent = rare.toLocaleString('en-US');
       document.getElementById("total").textContent = total.toLocaleString('en-US');
-      
-      // Barre de progression qui peut aller au-delà de 100%
-      const percentage = (total / 40000 * 100);
-      const maxWidth = Math.min(percentage, 200); // Maximum 200% pour l'affichage visuel
-      document.getElementById("progressBar").style.width = maxWidth + "%";
-      document.getElementById("progressText").textContent = Math.round(percentage) + "%";
-      
-      // Change la couleur si on dépasse 100%
-      const progressBar = document.getElementById("progressBar");
-      if (percentage > 100) {
-        progressBar.style.background = "linear-gradient(90deg, #ffd700, #ffaa00)"; // Doré
-      } else {
-        progressBar.style.background = "linear-gradient(90deg, #64ff64, #32dd32)"; // Vert
-      }
-    
 
     function showMessage(message, isError = false) {
       const errorDiv = document.getElementById("errorMessage");
