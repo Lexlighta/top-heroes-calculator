@@ -241,35 +241,34 @@
     // URLs configurées - DERNIÈRE URL QUI MARCHE
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1OL4JLXE2M1lP4MeEgzlmK3RAbmwh6UCHZRE72umspnH2IXj88hE92eOaZv8wqXtlgA/exec";
     const GOOGLE_SHEET_ID = "1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ";
-
-   function updateScore() {
+    
+function updateScore() {
   const skill = Math.floor(parseInt(document.getElementById("skill").value || 0) / 10);
   const pet = Math.floor(parseInt(document.getElementById("pet").value || 0) / 100) * 30;
   const unco = parseInt(document.getElementById("unco").value || 0) * 150;
   const rare = parseInt(document.getElementById("rare").value || 0) * 900;
-  const total = skill + pet + unco + rare;
+  const total = skill + pet + unco + rare;  // ← Gardez total comme NOMBRE
 
-  // Barre de progression qui peut aller au-delà de 100%
-      const percentage = (total / 40000 * 100);
-      const maxWidth = Math.min(percentage, 200); // Maximum 200% pour l'affichage visuel
-      document.getElementById("progressBar").style.width = maxWidth + "%";
-      document.getElementById("progressText").textContent = Math.round(percentage) + "%";
-      
-      // Change la couleur si on dépasse 100%
-      const progressBar = document.getElementById("progressBar");
-      if (percentage > 100) {
-        progressBar.style.background = "linear-gradient(90deg, #ffd700, #ffaa00)"; // Doré
-      } else {
-        progressBar.style.background = "linear-gradient(90deg, #64ff64, #32dd32)"; // Vert
-      }
+  // Calcul de la barre de progression AVANT tout affichage
+  const percentage = (total / 40000 * 100);
+  const maxWidth = Math.min(percentage, 200);
+  document.getElementById("progressBar").style.width = maxWidth + "%";
+  document.getElementById("progressText").textContent = Math.round(percentage) + "%";
+  
+  // Change la couleur si on dépasse 100%
+  const progressBar = document.getElementById("progressBar");
+  if (percentage > 100) {
+    progressBar.style.background = "linear-gradient(90deg, #ffd700, #ffaa00)";
+  } else {
+    progressBar.style.background = "linear-gradient(90deg, #64ff64, #32dd32)";
+  }
 
+  // ENSUITE, affichage avec virgules (utilisez des variables séparées)
   document.getElementById("score_skill").textContent = skill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   document.getElementById("score_pet").textContent = pet.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   document.getElementById("score_unco").textContent = unco.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   document.getElementById("score_rare").textContent = rare.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   document.getElementById("total").textContent = total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  
-  // ... reste du code
 }
 
       document.getElementById("score_skill").textContent = skill.toLocaleString('en-US');
