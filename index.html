@@ -344,14 +344,18 @@
       }
     }
 
-    async function submitScore(e) {
-    const scoreText = document.getElementById("total").textContent;
-console.log("Score text brut:", scoreText);
-const scoreNoComma = scoreText.replace(/,/g, '');
-console.log("Score sans virgule:", scoreNoComma);
-const score = parseInt(scoreNoComma);
-console.log("Score final:", score);
-      e.preventDefault();
+async function submitScore(e) {
+  e.preventDefault(); // ← DOIT ÊTRE EN PREMIER
+
+  const scoreText = document.getElementById("total").textContent;
+  console.log("Score text brut:", scoreText);
+  const scoreNoComma = scoreText.replace(/,/g, '');
+  console.log("Score sans virgule:", scoreNoComma);
+  const score = parseInt(scoreNoComma);
+  console.log("Score final:", score);
+
+  // ... reste du code
+}
 
       const pseudo = document.getElementById("pseudo").value.trim();
       const score = parseInt(document.getElementById("total").textContent.replace(/,/g, ''));
