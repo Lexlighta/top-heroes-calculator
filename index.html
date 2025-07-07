@@ -239,7 +239,7 @@
 
   <script>
     // URLs configurées
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznq4hBT4z7wn2NA5rAlvZWOMIfRfMf9Za7S3YIXBZUz3Q3b89mkYngwtU5wvvVq_04sw/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzejce-TGVc7St96kSS7w7hwR8csparXQoocZUg_GxuYE-3ig-Z8GFbeYv0RxpmJOrKbA/exec";
     const GOOGLE_SHEET_ID = "1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ";
 
     function updateScore() {
@@ -376,62 +376,27 @@
       try {
         console.log("Envoi du score:", { pseudo, score });
 
-        // Utilisation d'un formulaire caché pour contourner CORS
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = GOOGLE_SCRIPT_URL;
-        form.target = '_blank';
-        form.style.display = 'none';
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ pseudo, score })
+        });
 
-        const pseudoInput = document.createElement('input');
-        pseudoInput.type = 'hidden';
-        pseudoInput.name = 'pseudo';
-        pseudoInput.value = pseudo;
+        console.log("Réponse reçue:", response);
 
-        const scoreInput = document.createElement('input');
-        scoreInput.type = 'hidden';
-        scoreInput.name = 'score';
-        scoreInput.value = score;
+        const result = await response.json();
+        console.log("Contenu de la réponse:", result);
 
-        form.appendChild(pseudoInput);
-        form.appendChild(scoreInput);
-        document.body.appendChild(form);
-
-        // Alternative: JSONP-like approach
-        const scriptUrl = `${GOOGLE_SCRIPT_URL}?callback=handleResponse&pseudo=${encodeURIComponent(pseudo)}&score=${score}`;
-        
-        // Créer un script tag pour contourner CORS
-        const script = document.createElement('script');
-        script.src = scriptUrl;
-        
-        // Fonction de callback globale
-        window.handleResponse = function(data) {
-          console.log("Réponse reçue:", data);
-          if (data && data.result === "success") {
-            showMessage("✅ Score envoyé avec succès !");
-            document.getElementById("scoreForm").reset();
-            updateScore();
-            setTimeout(loadRanking, 2000); // Recharge après 2 secondes
-          } else {
-            showMessage("❌ Erreur: " + (data?.message || "Erreur inconnue"), true);
-          }
-          document.body.removeChild(script);
-          delete window.handleResponse;
-        };
-
-        document.body.appendChild(script);
-
-        // Si pas de réponse après 10 secondes, on assume que c'est envoyé
-        setTimeout(() => {
-          if (window.handleResponse) {
-            showMessage("📤 Score probablement envoyé ! Vérifiez le classement dans quelques secondes.");
-            setTimeout(loadRanking, 3000);
-            delete window.handleResponse;
-            if (document.body.contains(script)) {
-              document.body.removeChild(script);
-            }
-          }
-        }, 10000);
+        if (result.result === "success") {
+          showMessage("✅ Score envoyé avec succès !");
+          document.getElementById("scoreForm").reset();
+          updateScore(); // Remet à zéro l'affichage
+          loadRanking(); // Recharge le classement
+        } else {
+          showMessage("❌ Erreur: " + (result.message || "Erreur inconnue"), true);
+        }
 
       } catch (err) {
         console.error("Erreur complète:", err);
