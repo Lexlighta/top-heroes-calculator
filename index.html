@@ -219,26 +219,26 @@
   <div class="success-message" id="successMessage"></div>
 
   <form id="scoreForm" onsubmit="submitScore(event)">
-    <input type="text" id="pseudo" placeholder="Entrez votre pseudo" required maxlength="20">
+    <input type="text" id="pseudo" placeholder="Enter your username" required maxlength="20">
     <br>
-    <button class="btn" type="submit" id="submitBtn">Envoyer mon score</button>
+    <button class="btn" type="submit" id="submitBtn">Submit my score</button>
   </form>
 
-  <h2>🏆 Classement en direct</h2>
+  <h2>🏆 Live Rankings</h2>
   <table id="rankingTable">
     <thead>
       <tr>
-        <th>Pseudo</th>
+        <th>Username</th>
         <th>Score</th>
       </tr>
     </thead>
     <tbody id="ranking">
-      <tr><td colspan="2">Chargement...</td></tr>
+      <tr><td colspan="2">Loading...</td></tr>
     </tbody>
   </table>
 
   <script>
-    // URLs configurées - UTILISEZ L'ANCIENNE URL QUI MARCHAIT
+    // URLs configurées
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpktaOb6i2WKTRqVE9oxWo_hBEJ7DszYusi_yYqtbVXggjL7tDakjzlCVQfAjVAD7vBw/exec";
     const GOOGLE_SHEET_ID = "1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ";
 
@@ -318,7 +318,7 @@
 
         if (validData.length === 0) {
           const tr = document.createElement("tr");
-          tr.innerHTML = `<td colspan="2">Aucun score pour le moment</td>`;
+          tr.innerHTML = `<td colspan="2">No scores yet</td>`;
           table.appendChild(tr);
           return;
         }
@@ -340,7 +340,7 @@
       } catch (error) {
         console.error("Erreur lors du chargement du classement:", error);
         const table = document.getElementById("ranking");
-        table.innerHTML = `<tr><td colspan="2">Erreur de chargement</td></tr>`;
+        table.innerHTML = `<tr><td colspan="2">Loading error</td></tr>`;
       }
     }
 
@@ -352,17 +352,17 @@
 
       // Validation
       if (!pseudo) {
-        showMessage("Merci de saisir un pseudo !", true);
+        showMessage("Please enter a username!", true);
         return;
       }
 
       if (pseudo.length < 2) {
-        showMessage("Le pseudo doit faire au moins 2 caractères !", true);
+        showMessage("Username must be at least 2 characters!", true);
         return;
       }
 
       if (score === 0) {
-        if (!confirm("Votre score est de 0, êtes-vous sûr de vouloir l'envoyer ?")) {
+        if (!confirm("Your score is 0, are you sure you want to submit?")) {
           return;
         }
       }
@@ -371,7 +371,7 @@
       const submitBtn = document.getElementById("submitBtn");
       const originalText = submitBtn.textContent;
       submitBtn.disabled = true;
-      submitBtn.textContent = "Envoi en cours...";
+      submitBtn.textContent = "Submitting...";
 
       try {
         console.log("Envoi du score:", { pseudo, score });
@@ -390,17 +390,17 @@
         console.log("Contenu de la réponse:", result);
 
         if (result.result === "success") {
-          showMessage("✅ Score envoyé avec succès !");
+          showMessage("✅ Score successfully submitted!");
           document.getElementById("scoreForm").reset();
           updateScore(); // Remet à zéro l'affichage
           loadRanking(); // Recharge le classement
         } else {
-          showMessage("❌ Erreur: " + (result.message || "Erreur inconnue"), true);
+          showMessage("❌ Error: " + (result.message || "Unknown error"), true);
         }
 
       } catch (err) {
         console.error("Erreur complète:", err);
-        showMessage("❌ Erreur de connexion. Vérifiez votre connexion internet.", true);
+        showMessage("❌ Connection error. Please check your internet connection.", true);
       } finally {
         // Réactive le bouton
         submitBtn.disabled = false;
