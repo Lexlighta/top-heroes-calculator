@@ -189,7 +189,7 @@
       </tr>
       <tr>
         <td>🍼 Pet Food (x100)</td>
-        <td>15</td>
+        <td>30</td>
         <td><input type="number" id="pet" value="0" min="0" onchange="updateScore()"></td>
         <td class="score-display" id="score_pet">0</td>
       </tr>
@@ -244,7 +244,7 @@
 
     function updateScore() {
       const skill = Math.floor(parseInt(document.getElementById("skill").value || 0) / 10);
-      const pet = Math.floor(parseInt(document.getElementById("pet").value || 0) / 100) * 15;
+      const pet = Math.floor(parseInt(document.getElementById("pet").value || 0) / 100) * 30;
       const unco = parseInt(document.getElementById("unco").value || 0) * 150;
       const rare = parseInt(document.getElementById("rare").value || 0) * 900;
       const total = skill + pet + unco + rare;
