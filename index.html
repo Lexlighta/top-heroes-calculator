@@ -124,7 +124,7 @@
   <script>
     function updateScore() {
       const skill = Math.floor(parseInt(document.getElementById("skill").value || 0) / 10);
-      const pet = parseInt(document.getElementById("pet").value || 0) * 15;
+      const pet = Math.floor(parseInt(document.getElementById("pet").value || 0) / 100) * 15;
       const unco = parseInt(document.getElementById("unco").value || 0) * 150;
       const rare = parseInt(document.getElementById("rare").value || 0) * 900;
       const total = skill + pet + unco + rare;
