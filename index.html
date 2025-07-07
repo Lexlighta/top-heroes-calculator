@@ -249,11 +249,11 @@
       const rare = parseInt(document.getElementById("rare").value || 0) * 900;
       const total = skill + pet + unco + rare;
 
-      document.getElementById("score_skill").textContent = skill.toLocaleString();
-      document.getElementById("score_pet").textContent = pet.toLocaleString();
-      document.getElementById("score_unco").textContent = unco.toLocaleString();
-      document.getElementById("score_rare").textContent = rare.toLocaleString();
-      document.getElementById("total").textContent = total.toLocaleString();
+      document.getElementById("score_skill").textContent = skill.toLocaleString('en-US');
+      document.getElementById("score_pet").textContent = pet.toLocaleString('en-US');
+      document.getElementById("score_unco").textContent = unco.toLocaleString('en-US');
+      document.getElementById("score_rare").textContent = rare.toLocaleString('en-US');
+      document.getElementById("total").textContent = total.toLocaleString('en-US');
       
       // Barre de progression qui peut aller au-delà de 100%
       const percentage = (total / 40000 * 100);
@@ -293,7 +293,7 @@
 
     async function loadRanking() {
       try {
-        console.log("Chargement du classement...");
+        console.log("Loading rankings...");
         
         const res = await fetch(`https://opensheet.elk.sh/${GOOGLE_SHEET_ID}/Ranking`);
         
@@ -302,10 +302,10 @@
         }
         
         const data = await res.json();
-        console.log("Données reçues:", data);
+        console.log("Data received:", data);
 
         if (!Array.isArray(data)) {
-          console.error("Les données reçues ne sont pas un tableau:", data);
+          console.error("Received data is not an array:", data);
           return;
         }
 
@@ -332,83 +332,121 @@
           else if (rank === 3) rankEmoji = "🥉 ";
           
           // Affichage correct du score avec virgules
-          const displayScore = parseFloat(row.Score).toLocaleString();
+          const displayScore = parseFloat(row.Score).toLocaleString('en-US');
           tr.innerHTML = `<td>${rankEmoji}${row.Pseudo}</td><td>${displayScore}</td>`;
           table.appendChild(tr);
         });
 
       } catch (error) {
-        console.error("Erreur lors du chargement du classement:", error);
+        console.error("Error loading rankings:", error);
         const table = document.getElementById("ranking");
         table.innerHTML = `<tr><td colspan="2">Loading error</td></tr>`;
       }
     }
 
-async function submitScore(e) {
- e.preventDefault();
- 
- const scoreText = document.getElementById("total").textContent;
- console.log("Raw score text:", scoreText);
- const scoreNoComma = scoreText.replace(/,/g, '');
- console.log("Score without comma:", scoreNoComma);
- const score = parseInt(scoreNoComma);
- console.log("Final score:", score);
+    async function submitScore(e) {
+      e.preventDefault();
+      
+      const scoreText = document.getElementById("total").textContent;
+      console.log("Raw score text:", scoreText);
+      const scoreNoComma = scoreText.replace(/\D/g, '');  // Garde seulement les chiffres
+      console.log("Score without comma:", scoreNoComma);
+      const score = parseInt(scoreNoComma);
+      console.log("Final score:", score);
 
- const pseudo = document.getElementById("pseudo").value.trim();
+      const pseudo = document.getElementById("pseudo").value.trim();
 
- // Validation
- if (!pseudo) {
-   showMessage("Please enter a username!", true);
-   return;
- }
+      // Validation
+      if (!pseudo) {
+        showMessage("Please enter a username!", true);
+        return;
+      }
 
+      if (score === 0) {
+        if (!confirm("Your score is 0, are you sure you want to submit?")) {
+          return;
+        }
+      }
 
- if (score === 0) {
-   if (!confirm("Your score is 0, are you sure you want to submit?")) {
-     return;
-   }
- }
+      // Disable button during submission
+      const submitBtn = document.getElementById("submitBtn");
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
 
- // Disable button during submission
- const submitBtn = document.getElementById("submitBtn");
- const originalText = submitBtn.textContent;
- submitBtn.disabled = true;
- submitBtn.textContent = "Submitting...";
+      try {
+        console.log("Sending score:", { pseudo, score });
 
- try {
-   console.log("Sending score:", { pseudo, score });
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({ pseudo, score })
+        });
 
-   const response = await fetch(GOOGLE_SCRIPT_URL, {
-     method: "POST",
-     headers: { 
-       "Content-Type": "text/plain;charset=utf-8"
-     },
-     body: JSON.stringify({ pseudo, score })
-   });
+        console.log("Response received:", response);
 
-   console.log("Response received:", response);
+        const result = await response.json();
+        console.log("Response content:", result);
 
-   const result = await response.json();
-   console.log("Response content:", result);
+        if (result.result === "success") {
+          showMessage("✅ Score successfully submitted!");
+          document.getElementById("scoreForm").reset();
+          updateScore();
+          loadRanking();
+        } else {
+          showMessage("❌ Error: " + (result.message || "Unknown error"), true);
+        }
 
-   if (result.result === "success") {
-     showMessage("✅ Score successfully submitted!");
-     document.getElementById("scoreForm").reset();
-     updateScore();
-     loadRanking();
-   } else {
-     showMessage("❌ Error: " + (result.message || "Unknown error"), true);
-   }
+      } catch (err) {
+        console.error("Complete error:", err);
+        showMessage("❌ Connection error. Please check your internet connection.", true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
 
- } catch (err) {
-   console.error("Complete error:", err);
-   showMessage("❌ Connection error. Please check your internet connection.", true);
- } finally {
-   submitBtn.disabled = false;
-   submitBtn.textContent = originalText;
- }
-}
+    // Initialisation
+    updateScore();
+    loadRanking();
+    
+    // Recharge le classement toutes les 30 secondes
+    setInterval(loadRanking, 30000);
 
+    // Sauvegarde automatique des valeurs dans le navigateur
+    function saveToLocalStorage() {
+      const data = {
+        skill: document.getElementById("skill").value,
+        pet: document.getElementById("pet").value,
+        unco: document.getElementById("unco").value,
+        rare: document.getElementById("rare").value,
+        pseudo: document.getElementById("pseudo").value
+      };
+      localStorage.setItem('heroesRushData', JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage() {
+      const data = localStorage.getItem('heroesRushData');
+      if (data) {
+        const parsed = JSON.parse(data);
+        document.getElementById("skill").value = parsed.skill || 0;
+        document.getElementById("pet").value = parsed.pet || 0;
+        document.getElementById("unco").value = parsed.unco || 0;
+        document.getElementById("rare").value = parsed.rare || 0;
+        document.getElementById("pseudo").value = parsed.pseudo || '';
+        updateScore();
+      }
+    }
+
+    // Charge les données sauvegardées au démarrage
+    loadFromLocalStorage();
+
+    // Sauvegarde à chaque modification
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', saveToLocalStorage);
+    });
   </script>
 </body>
 </html>
