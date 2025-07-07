@@ -362,10 +362,6 @@ async function submitScore(e) {
    return;
  }
 
- if (pseudo.length < 2) {
-   showMessage("Username must be at least 2 characters!", true);
-   return;
- }
 
  if (score === 0) {
    if (!confirm("Your score is 0, are you sure you want to submit?")) {
@@ -412,66 +408,6 @@ async function submitScore(e) {
    submitBtn.textContent = originalText;
  }
 }
-
-      const pseudo = document.getElementById("pseudo").value.trim();
-     
-      // Validation
-      if (!pseudo) {
-        showMessage("Please enter a username!", true);
-        return;
-      }
-
-      if (pseudo.length < 2) {
-        showMessage("Username must be at least 2 characters!", true);
-        return;
-      }
-
-      if (score === 0) {
-        if (!confirm("Your score is 0, are you sure you want to submit?")) {
-          return;
-        }
-      }
-
-      // Désactive le bouton pendant l'envoi
-      const submitBtn = document.getElementById("submitBtn");
-      const originalText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Submitting...";
-
-      try {
-        console.log("Envoi du score:", { pseudo, score });
-
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify({ pseudo, score })
-        });
-
-        console.log("Réponse reçue:", response);
-
-        const result = await response.json();
-        console.log("Contenu de la réponse:", result);
-
-        if (result.result === "success") {
-          showMessage("✅ Score successfully submitted!");
-          document.getElementById("scoreForm").reset();
-          updateScore(); // Remet à zéro l'affichage
-          loadRanking(); // Recharge le classement
-        } else {
-          showMessage("❌ Error: " + (result.message || "Unknown error"), true);
-        }
-
-      } catch (err) {
-        console.error("Erreur complète:", err);
-        showMessage("❌ Connection error. Please check your internet connection.", true);
-      } finally {
-        // Réactive le bouton
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    }
 
     // Initialisation
     updateScore();
