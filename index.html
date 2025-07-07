@@ -176,13 +176,27 @@
     }
 
     async function loadRanking() {
-      const sheetURL = "https://opensheet.elk.sh/1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ/Ranking";
-      const res = await fetch(sheetURL);
-      const data = await res.json();
-      const tbody = document.querySelector("#ranking tbody");
-      tbody.innerHTML = "";
+    try {
+  const sheetURL = "https://opensheet.elk.sh/1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ/Ranking";
+  const res = await fetch(sheetURL);
+  const data = await res.json();
 
-      data.sort((a, b) => parseInt(b.Score) - parseInt(a.Score));
+  if (Array.isArray(data)) {
+    data.sort((a, b) => parseInt(b.Score) - parseInt(a.Score));
+    const tbody = document.querySelector("#ranking tbody");
+    tbody.innerHTML = "";
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${row.Pseudo}</td><td>${row.Score}</td>`;
+      tbody.appendChild(tr);
+    });
+  } else {
+    console.error("❌ Mauvais format JSON reçu pour le classement");
+  }
+} catch (err) {
+  console.error("💥 Erreur de récupération du classement :", err);
+}
+
       data.forEach(row => {
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${row.Pseudo}</td><td>${row.Score}</td>`;
