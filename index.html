@@ -354,12 +354,6 @@
         }
       }
 
-      // Vérification de l'URL (plus nécessaire maintenant)
-      if (false) { // Désactivé car l'URL est maintenant configurée
-        showMessage("⚠️ Vous devez configurer l'URL Google Apps Script dans le code !", true);
-        return;
-      }
-
       // Désactive le bouton pendant l'envoi
       const submitBtn = document.getElementById("submitBtn");
       const originalText = submitBtn.textContent;
@@ -369,27 +363,62 @@
       try {
         console.log("Envoi du score:", { pseudo, score });
 
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ pseudo, score })
-        });
+        // Utilisation d'un formulaire caché pour contourner CORS
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = GOOGLE_SCRIPT_URL;
+        form.target = '_blank';
+        form.style.display = 'none';
 
-        console.log("Réponse reçue:", response);
+        const pseudoInput = document.createElement('input');
+        pseudoInput.type = 'hidden';
+        pseudoInput.name = 'pseudo';
+        pseudoInput.value = pseudo;
 
-        const result = await response.json();
-        console.log("Contenu de la réponse:", result);
+        const scoreInput = document.createElement('input');
+        scoreInput.type = 'hidden';
+        scoreInput.name = 'score';
+        scoreInput.value = score;
 
-        if (result.result === "success") {
-          showMessage("✅ Score envoyé avec succès !");
-          document.getElementById("scoreForm").reset();
-          updateScore(); // Remet à zéro l'affichage
-          loadRanking(); // Recharge le classement
-        } else {
-          showMessage("❌ Erreur: " + (result.message || "Erreur inconnue"), true);
-        }
+        form.appendChild(pseudoInput);
+        form.appendChild(scoreInput);
+        document.body.appendChild(form);
+
+        // Alternative: JSONP-like approach
+        const scriptUrl = `${GOOGLE_SCRIPT_URL}?callback=handleResponse&pseudo=${encodeURIComponent(pseudo)}&score=${score}`;
+        
+        // Créer un script tag pour contourner CORS
+        const script = document.createElement('script');
+        script.src = scriptUrl;
+        
+        // Fonction de callback globale
+        window.handleResponse = function(data) {
+          console.log("Réponse reçue:", data);
+          if (data && data.result === "success") {
+            showMessage("✅ Score envoyé avec succès !");
+            document.getElementById("scoreForm").reset();
+            updateScore();
+            setTimeout(loadRanking, 2000); // Recharge après 2 secondes
+          } else {
+            showMessage("❌ Erreur: " + (data?.message || "Erreur inconnue"), true);
+          }
+          document.body.removeChild(script);
+          delete window.handleResponse;
+        };
+
+        document.body.appendChild(script);
+
+        // Si pas de réponse après 10 secondes, on assume que c'est envoyé
+        setTimeout(() => {
+          if (window.handleResponse) {
+            showMessage("📤 Score probablement envoyé ! Vérifiez le classement dans quelques secondes.");
+            setTimeout(loadRanking, 3000);
+            delete window.handleResponse;
+            if (document.body.contains(script)) {
+              document.body.removeChild(script);
+            }
+          }
+        }, 10000);
 
       } catch (err) {
         console.error("Erreur complète:", err);
