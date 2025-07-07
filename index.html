@@ -238,8 +238,8 @@
   </table>
 
   <script>
-    // URLs configurées
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmPceRygnKr_ZyV7M8DqzLcuXj6UB50uUVoyVD6RoOwNry2wvekALGP-poUHZ_LMsCSA/exec";
+    // URLs configurées - NOUVELLE URL QUI MARCHE !
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbza8zgljkpmMK9YcWGmZciwtzoWiq2PVzJsIN6ifXKtRzHbA6x4uCIVWetDBR3WxBegEg/exec";
     const GOOGLE_SHEET_ID = "1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ";
 
     function updateScore() {
@@ -376,56 +376,35 @@
       try {
         console.log("Envoi du score:", { pseudo, score });
 
-        // MÉTHODE SANS CORS - Formulaire GET dans iframe caché
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.name = 'submitFrame';
-        document.body.appendChild(iframe);
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ pseudo, score })
+        });
 
-        const form = document.createElement('form');
-        form.method = 'GET';
-        form.action = GOOGLE_SCRIPT_URL;
-        form.target = 'submitFrame';
-        form.style.display = 'none';
+        console.log("Réponse reçue:", response);
 
-        const pseudoInput = document.createElement('input');
-        pseudoInput.type = 'hidden';
-        pseudoInput.name = 'pseudo';
-        pseudoInput.value = pseudo;
+        const result = await response.json();
+        console.log("Contenu de la réponse:", result);
 
-        const scoreInput = document.createElement('input');
-        scoreInput.type = 'hidden';
-        scoreInput.name = 'score';
-        scoreInput.value = score;
-
-        form.appendChild(pseudoInput);
-        form.appendChild(scoreInput);
-        document.body.appendChild(form);
-
-        // Soumission du formulaire
-        form.submit();
-
-        // Succès après 2 secondes
-        setTimeout(() => {
+        if (result.result === "success") {
           showMessage("✅ Score successfully submitted!");
           document.getElementById("scoreForm").reset();
-          updateScore();
-          loadRanking();
-          
-          // Nettoyage
-          document.body.removeChild(form);
-          document.body.removeChild(iframe);
-        }, 2000);
+          updateScore(); // Remet à zéro l'affichage
+          loadRanking(); // Recharge le classement
+        } else {
+          showMessage("❌ Error: " + (result.message || "Unknown error"), true);
+        }
 
       } catch (err) {
         console.error("Erreur complète:", err);
         showMessage("❌ Connection error. Please check your internet connection.", true);
       } finally {
         // Réactive le bouton
-        setTimeout(() => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
-        }, 2000);
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
       }
     }
 
