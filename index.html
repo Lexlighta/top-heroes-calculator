@@ -102,8 +102,9 @@
       max-width: 600px;
       margin: 1rem auto;
       height: 30px;
-      overflow: hidden;
+      overflow: visible; /* Permet à la barre de dépasser */
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+      position: relative;
     }
     .bar {
       background: linear-gradient(90deg, #64ff64, #32dd32);
@@ -238,7 +239,7 @@
 
   <script>
     // URLs configurées
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznq4hBT4z7wn2NA5rAlvZWOMIfRfMf9Za7S3YIXBZUz3Q3b89mkYngwtU5wvvVq_04sw/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLqESs6KJnE9bQn_7FnfM3opsNXAJI77WlP5Fmqaug0RDfq2u7cHxWGQMMwKrSaXOsbw/exec";
     const GOOGLE_SHEET_ID = "1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ";
 
     function updateScore() {
@@ -254,9 +255,19 @@
       document.getElementById("score_rare").textContent = rare.toLocaleString();
       document.getElementById("total").textContent = total.toLocaleString();
       
-      const percentage = Math.min((total / 40000 * 100), 100);
-      document.getElementById("progressBar").style.width = percentage + "%";
+      // Barre de progression qui peut aller au-delà de 100%
+      const percentage = (total / 40000 * 100);
+      const maxWidth = Math.min(percentage, 200); // Maximum 200% pour l'affichage visuel
+      document.getElementById("progressBar").style.width = maxWidth + "%";
       document.getElementById("progressText").textContent = Math.round(percentage) + "%";
+      
+      // Change la couleur si on dépasse 100%
+      const progressBar = document.getElementById("progressBar");
+      if (percentage > 100) {
+        progressBar.style.background = "linear-gradient(90deg, #ffd700, #ffaa00)"; // Doré
+      } else {
+        progressBar.style.background = "linear-gradient(90deg, #64ff64, #32dd32)"; // Vert
+      }
     }
 
     function showMessage(message, isError = false) {
@@ -320,7 +331,9 @@
           else if (rank === 2) rankEmoji = "🥈 ";
           else if (rank === 3) rankEmoji = "🥉 ";
           
-          tr.innerHTML = `<td>${rankEmoji}${row.Pseudo}</td><td>${parseInt(row.Score).toLocaleString()}</td>`;
+          // Affichage correct du score avec virgules
+          const displayScore = parseInt(row.Score).toLocaleString();
+          tr.innerHTML = `<td>${rankEmoji}${row.Pseudo}</td><td>${displayScore}</td>`;
           table.appendChild(tr);
         });
 
