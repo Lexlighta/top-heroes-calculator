@@ -93,7 +93,7 @@
         <td id="score_unco">0</td>
       </tr>
       <tr>
-        <td>🪚 Use Rare Pet</td>
+        <td>🧪 Use Rare Pet</td>
         <td>900</td>
         <td><input type="number" id="rare" value="0" onchange="updateScore()"></td>
         <td id="score_rare">0</td>
@@ -106,12 +106,8 @@
     <div class="bar" id="progressBar" style="width: 0%"></div>
   </div>
 
-  <form id="scoreForm" action="https://docs.google.com/forms/d/e/TON_GOOGLE_FORM_ID/formResponse" method="POST" target="hidden_iframe" onsubmit="submitted=true">
-    <input name="entry.PSEUDO_FIELD_ID" id="pseudo" placeholder="Pseudo" required><br>
-    <input type="hidden" name="entry.SCORE_FIELD_ID" id="hiddenScore">
-    <button class="btn" type="submit">Envoyer mon score</button>
-  </form>
-  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+  <input id="pseudo" placeholder="Pseudo" required><br>
+  <button class="btn" onclick="sendScore()">Envoyer mon score</button>
 
   <h2>🏆 Classement en direct</h2>
   <table id="rankingTable">
@@ -122,6 +118,8 @@
   </table>
 
   <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw7azMyPGpEFMNQQ2iHsgnsg3SomRzmva6_tAnfNX4-pwPmbXmP6owX5bIDCoBsASrVfQ/exec";
+
     function updateScore() {
       const skill = Math.floor(parseInt(document.getElementById("skill").value || 0) / 10);
       const pet = Math.floor(parseInt(document.getElementById("pet").value || 0) / 100) * 15;
@@ -134,23 +132,45 @@
       document.getElementById("score_unco").textContent = unco;
       document.getElementById("score_rare").textContent = rare;
       document.getElementById("total").textContent = total;
-      document.getElementById("hiddenScore").value = total;
       document.getElementById("progressBar").style.width = (total / 40000 * 100) + "%";
     }
 
-    async function loadRanking() {
-      const res = await fetch("https://opensheet.elk.sh/1iCrVEcqdJfa6xssi5wcB6p6DVP6USv4hYaP8Wl5SQcQ/Ranking");
-      const data = await res.json();
-      data.sort((a, b) => parseInt(b.Score) - parseInt(a.Score));
-      const table = document.getElementById("ranking");
-      table.innerHTML = "";
-      data.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${row.Pseudo}</td><td>${row.Score}</td>`;
-        table.appendChild(tr);
+    async function sendScore() {
+      const pseudo = document.getElementById("pseudo").value.trim();
+      const score = parseInt(document.getElementById("total").textContent);
+      if (!pseudo) return alert("Merci d'entrer un pseudo.");
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ pseudo, score }),
+        headers: { "Content-Type": "application/json" }
       });
+      if (response.ok) {
+        alert("Score envoyé !");
+        loadRanking();
+      } else {
+        alert("Erreur lors de l'envoi");
+      }
     }
 
+    async function loadRanking() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        data.sort((a, b) => b.score - a.score);
+        const table = document.getElementById("ranking");
+        table.innerHTML = "";
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${row.pseudo}</td><td>${row.score}</td>`;
+          table.appendChild(tr);
+        });
+      } catch (e) {
+        console.error("Erreur de chargement du classement:", e);
+      }
+    }
+
+    updateScore();
     loadRanking();
     setInterval(loadRanking, 10000);
   </script>
